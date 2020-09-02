@@ -1,0 +1,112 @@
+project_name: turbogit
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - <<: &build_defaults
+      binary: bin/rename
+      ldflags:
+        - -s -w
+    id: macos
+    goos: [darwin]
+    goarch: [amd64]
+
+  - <<: *build_defaults
+    id: linux
+    goos: [linux]
+    goarch: [386, amd64, arm64]
+
+  - <<: *build_defaults
+    id: windows
+    goos: [windows]
+    goarch: [386, amd64]
+
+archives:
+  - id: nix
+    builds: [macos, linux]
+    <<: &archive_defaults
+      name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    wrap_in_directory: true
+    replacements:
+      darwin: macOS
+    format: tar.gz
+    files:
+      - LICENSE
+  - id: windows
+    builds: [windows]
+    <<: *archive_defaults
+    wrap_in_directory: false
+    format: zip
+    files:
+      - LICENSE
+
+source:
+  enabled: true
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^build:"
+
+release:
+  github:
+  prerelease: auto
+
+brews:
+  - # IDs of the archives to use.
+    ids: [nix]
+    # Github repository to push the tap to.
+    github:
+      owner: b4nst
+      name: homebrew-tap
+    folder: Formula
+    homepage: "https://github.com/b4nst/rename"
+    description: "Cli tool built to help you deal with your day-to-day git work"
+    skip_upload: auto
+    # Custom block for brew.
+    # Used to specify alternate downloads for devel or head releases.
+    custom_block: |
+      head do
+        url "https://github.com/b4nst/rename.git"
+        depends_on "go"
+      end
+    test: |
+      help_text = shell_output("#{bin}/rename -h")
+      assert_includes help_text, "Usage:"
+
+    # Custom install script for brew.
+    # Default is 'bin.install "program"'.
+    install: |
+      bin.install "bin/rename"
+
+nfpms:
+  - license: MIT
+    maintainer: banst
+    homepage: https://github.com/b4nst/turbogit
+    bindir: /usr/local
+    dependencies:
+      - git
+    formats:
+      - deb
+      - rpm
+
+scoop:
+  bucket:
+    owner: b4nst
+    name: scoop-bucket
+  homepage: https://github.com/b4nst/turbogit
+  skip_upload: auto
+  description: "Cli tool built to help you deal with your day-to-day git work."
+  license: MIT

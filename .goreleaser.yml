@@ -1,4 +1,4 @@
-project_name: turbogit
+project_name: rename
 
 before:
   hooks:
@@ -94,7 +94,7 @@ brews:
 nfpms:
   - license: MIT
     maintainer: banst
-    homepage: https://github.com/b4nst/turbogit
+    homepage: https://github.com/b4nst/rename
     bindir: /usr/local
     dependencies:
       - git
@@ -106,7 +106,7 @@ scoop:
   bucket:
     owner: b4nst
     name: scoop-bucket
-  homepage: https://github.com/b4nst/turbogit
+  homepage: https://github.com/b4nst/rename
   skip_upload: auto
   description: "Cli tool built to help you deal with your day-to-day git work."
   license: MIT
